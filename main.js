@@ -5,6 +5,7 @@ var client = connect()
 var argv = require('minimist')(process.argv.slice(2)) || {};
 var prevText = "";
 var isExiting = false;
+console.log('Starting')
 
 var config = {
   token: argv.token,
@@ -34,7 +35,7 @@ async function loop(){
   var track = status.body.track;
   var text = `${track.artist_resource.name} - ${track.track_resource.name}`
 
-  if(prevText != text){
+  if(prevText != text && status.body.playing){
     prevText = text
     https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusPrefix.trim()+" "+text)}&access_token=${config.token}`, function(res){
       res.on('data', (d) => {
