@@ -1,0 +1,19 @@
+{
+  "name": "spotify2vk",
+  "version": "1.0.0",
+  "description": "show Spotify currently playing track in VK status",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "author": "Eugeny Malevich",
+  "license": "ISC",
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "spotify-local-control": "^1.1.1"
+  }
+}
