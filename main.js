@@ -5,6 +5,7 @@ var client = connect()
 var argv = require('minimist')(process.argv.slice(2)) || {};
 var prevText = "";
 var isExiting = false;
+var isPaused = false;
 console.log('Starting')
 
 var config = {
@@ -47,6 +48,15 @@ async function loop(){
       })
     })
     console.log('New track:',text)
+  }else if(!status.body.playing && !isPaused){
+    console.log('Paused, setting replacer status')
+    https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusReplace)}&access_token=${config.token}`, function(res){
+      res.on('data', (d) => {
+        console.log('Done')
+        isPaused = true
+        prevText = ''
+      })
+    })
   }
   setTimeout(loop, 500)
 }
