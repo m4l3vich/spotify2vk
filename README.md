@@ -3,7 +3,7 @@ ENG [RUS](README_RU.md "Русская версия")
 ## How to launch
 You need a tool called _forever_, and you can install it using NPM:   
 `npm install forever -g`   
-Then go to the script's directory and execute this commandы:   
+Then go to the script's directory and execute this commands:   
 ```
 npm install
 forever start main.js <args>
