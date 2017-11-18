@@ -6,7 +6,7 @@ var argv = require('minimist')(process.argv.slice(2)) || {};
 var prevText = "";
 var isExiting = false;
 var isPaused = false;
-console.log('Starting')
+console.log(`Starting Spotify2VK v${require('./package.json').version} by M4L3VICH`)
 
 var config = {
   token: argv.token,
@@ -38,6 +38,7 @@ async function loop(){
 
   if(prevText != text && status.body.playing){
     prevText = text
+    isPaused = false
     https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusPrefix.trim()+" "+text)}&access_token=${config.token}`, function(res){
       res.on('data', (d) => {
         var r = JSON.parse(d.toString())
