@@ -1,5 +1,5 @@
 # Spotify2VK
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)   
 ENG [RUS](README_RU.md "Русская версия")
 ## How to launch
 You need a tool called _forever_, and you can install it using NPM:   
