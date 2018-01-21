@@ -1,6 +1,6 @@
 {
   "name": "spotify2vk",
-  "version": "1.1.2",
+  "version": "1.2.3",
   "description": "show Spotify currently playing track in VK status",
   "main": "main.js",
   "scripts": {

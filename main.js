@@ -6,23 +6,26 @@ var argv = require('minimist')(process.argv.slice(2)) || {}
 var prevText = ''
 var isExiting = false
 var isPaused = false
+var isNotRunning = false
 console.log(`Starting Spotify2VK v${require('./package.json').version} by M4L3VICH`)
 
 var config = {
   token: argv.token,
   statusPrefix: argv.prefix || 'Spotify |',
   statusReplace: argv.replacer,
+  updateInterval: argv.interval || 500,
   current: argv.current
 }
 
 if (argv.help || argv.h) {
   console.log([
-    `Spotify2VK: show Spotify currently playing track in VK status`,
+    `Spotify2VK: show Spotify track in VK status`,
     `Usage:`,
-    `--token <token>        VK access_token (required)`,
-    `--prefix <prefix>      Status prefix (default: "Spotify |")`,
-    `--replacer <replacer>  Text that will be set in status before closing the app`,
-    `--current              Use current (before running app) status as replacer`
+    `--token <token>              VK access_token (required)`,
+    `--prefix <prefix>            Status prefix (default: "Spotify |")`,
+    `--replacer <replacer>        Text that will be set in status before closing the app`,
+    `--interval <interval in ms>  Set track update interval (default: 500)`,
+    `--current                    Use current (before running app) status as replacer`
   ].join('\n'))
   process.exit()
 } else if (!config.token) {
@@ -34,32 +37,48 @@ async function loop () {
   // console.log('previous',prevText)
   var status = await client.status()
   var track = status.body.track
-  var text = `${track.artist_resource.name} - ${track.track_resource.name}`
+  if (track) {
+    var text = `${track.artist_resource.name} - ${track.track_resource.name}`
 
-  if (prevText !== text && status.body.playing) {
-    prevText = text
-    isPaused = false
-    https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusPrefix.trim() + ' ' + text)}&access_token=${config.token}`, function (res) {
-      res.on('data', (d) => {
-        var r = JSON.parse(d.toString())
-        if (r.error) {
-          console.error('VK error:', r.error.error_msg)
-          process.exit()
-        }
+    if (prevText !== text && status.body.playing) {
+      prevText = text
+      isPaused = false
+      https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusPrefix.trim() + ' ' + text)}&access_token=${config.token}`, function (res) {
+        res.on('data', (d) => {
+          var r = JSON.parse(d.toString())
+          if (r.error) {
+            console.error('VK error:', r.error)
+            process.exit()
+          } else {
+            setTimeout(loop, config.updateInterval)
+          }
+        })
       })
-    })
-    console.log('New track:', text)
-  } else if (!status.body.playing && !isPaused) {
-    console.log('Paused, setting replacer status')
+      console.log('New track:', text)
+    } else if (!status.body.playing && !isPaused) {
+      console.log('Paused, setting replacer status')
+      https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusReplace)}&access_token=${config.token}`, function (res) {
+        res.on('data', (d) => {
+          isPaused = true
+          prevText = ''
+          setTimeout(loop, config.updateInterval)
+        })
+      })
+    } else {
+      setTimeout(loop, config.updateInterval)
+    }
+  } else if (!isNotRunning) {
+    console.log('Seems that Spotify is not running, setting replacer status')
     https.get(`https://api.vk.com/method/status.set?text=${querystring.escape(config.statusReplace)}&access_token=${config.token}`, function (res) {
       res.on('data', (d) => {
-        console.log('Done')
-        isPaused = true
+        isNotRunning = true
         prevText = ''
+        setTimeout(loop, config.updateInterval)
       })
     })
+  } else {
+    console.log('else is triggered')
   }
-  setTimeout(loop, 500)
 }
 
 if (config.current) {
